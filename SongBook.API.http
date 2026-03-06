@@ -1,0 +1,6 @@
+@SongBook.API_HostAddress = http://localhost:5223
+
+GET {{SongBook.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
