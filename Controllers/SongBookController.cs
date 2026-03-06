@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SongBook.API.Models.Request;
+using SongBook.API.Repositories;
 
 namespace SongBook.API.Controllers
 {
@@ -8,15 +9,17 @@ namespace SongBook.API.Controllers
     [ApiController]
     public class SongBookController : ControllerBase
     {
-        public SongBookController()
+        private readonly ISongBookRepository _repository;
+        public SongBookController(ISongBookRepository repository)
         {
+            _repository = repository;
         }
 
         [HttpGet]
         [Route("songs")]
-        public async Task<IActionResult> GetSongs(int pageNo, string searchText)
+        public async Task<IActionResult> GetSongs(int? pageNo, string? searchText)
         {
-            return Ok("Hello World");
+            return Ok(await _repository.GetSongs());
         }
 
         [HttpPost]

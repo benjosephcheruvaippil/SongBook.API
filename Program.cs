@@ -1,9 +1,14 @@
+using SongBook.API.Data;
+using SongBook.API.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddScoped<ISongBookRepository, SongBookRepository>();
 builder.Services.AddOpenApi();
 
 // Add Swagger
