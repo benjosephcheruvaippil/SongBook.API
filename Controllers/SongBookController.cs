@@ -26,8 +26,7 @@ namespace SongBook.API.Controllers
         [Route("saveSong")]
         public async Task<IActionResult> SaveSong(Song request)
         {
-            return Ok($"Hello {request.ToString()}");
+            return Ok(await _repository.SaveSong(request));
         }
-
     }
 }
