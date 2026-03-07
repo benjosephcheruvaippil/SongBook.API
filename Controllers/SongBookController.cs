@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SongBook.API.Models.Request;
 using SongBook.API.Repositories;
+using System.Text.Json;
 
 namespace SongBook.API.Controllers
 {
@@ -19,7 +21,9 @@ namespace SongBook.API.Controllers
         [Route("songs")]
         public async Task<IActionResult> GetSongs(int? pageNo, string? searchText)
         {
-            return Ok(await _repository.GetSongs());
+            var json = await _repository.GetSongs(pageNo, searchText);
+            return Ok(JsonSerializer.Deserialize<object>(json));
+            //return Content(json, "application/json");
         }
 
         [HttpPost]

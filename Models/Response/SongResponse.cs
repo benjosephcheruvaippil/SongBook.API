@@ -2,6 +2,7 @@
 {
     public class SongResponse
     {
+        public long SongId { get; set; }
         public string? Title { get; set; }
         public string? EnglishTitle { get; set; }
         public string? Artist { get; set; }

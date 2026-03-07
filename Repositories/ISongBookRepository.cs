@@ -5,7 +5,7 @@ namespace SongBook.API.Repositories
 {
     public interface ISongBookRepository
     {
-        Task<IEnumerable<SongResponse>> GetSongs();
+        Task<string> GetSongs(int? page = 1, string? search = null);
         Task<long> SaveSong(Song request);
     }
 }
