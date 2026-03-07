@@ -4,6 +4,7 @@ using SongBook.API.Models.Request;
 using SongBook.API.Models.Response;
 using System;
 using System.Data;
+using System.Transactions;
 
 namespace SongBook.API.Repositories
 {
@@ -146,6 +147,21 @@ namespace SongBook.API.Repositories
             var query = @"DELETE FROM stanzas WHERE song_id = @SongId";
 
             await connection.ExecuteAsync(query, new { SongId = songId }, transaction);
+        }
+
+        public async Task<bool> DeleteSong(long? songId)
+        {
+            try
+            {
+                using var connection = _context.CreateConnection();
+                var query = @"DELETE FROM songs WHERE song_id = @SongId";
+                await connection.ExecuteAsync(query, new { SongId = songId });
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

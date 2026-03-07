@@ -7,5 +7,6 @@ namespace SongBook.API.Repositories
     {
         Task<string> GetSongs(int? page = 1, string? search = null);
         Task<long> SaveSong(Song request);
+        Task<bool> DeleteSong(long? songId);
     }
 }

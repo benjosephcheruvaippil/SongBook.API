@@ -32,5 +32,12 @@ namespace SongBook.API.Controllers
         {
             return Ok(await _repository.SaveSong(request));
         }
+
+        [HttpDelete]
+        [Route("deleteSong")]
+        public async Task<IActionResult> DeleteSong(long? songId)
+        {
+            return Ok(await _repository.DeleteSong(songId));
+        }
     }
 }
