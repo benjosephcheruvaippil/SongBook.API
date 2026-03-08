@@ -17,12 +17,22 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    // This defines the endpoint for the JSON file
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "SongBook API v1");
+
+    // This ensures the UI is served at /swagger
+    options.RoutePrefix = "swagger";
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
