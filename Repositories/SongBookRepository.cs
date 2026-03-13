@@ -19,7 +19,7 @@ namespace SongBook.API.Repositories
             WITH filtered_songs AS (
                 SELECT *
                 FROM songs
-                Order by updated_at DESC
+                ORDER BY COALESCE(updated_at, created_at) DESC
                 LIMIT 5
             ),
             paged_songs AS (
@@ -39,8 +39,9 @@ namespace SongBook.API.Repositories
                 ) st ON true
             )
             SELECT json_build_object(
-                'songs', (SELECT json_agg(song_data) FROM paged_songs)
-            );";
+                'songs', COALESCE(json_agg(song_data), '[]'::json)
+            )
+            FROM paged_songs;";
 
             using var connection = _context.CreateConnection();
 
