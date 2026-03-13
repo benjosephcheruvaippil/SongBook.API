@@ -1,10 +1,7 @@
 ﻿using Dapper;
 using SongBook.API.Data;
 using SongBook.API.Models.Request;
-using SongBook.API.Models.Response;
-using System;
 using System.Data;
-using System.Transactions;
 
 namespace SongBook.API.Repositories
 {
@@ -14,6 +11,40 @@ namespace SongBook.API.Repositories
         public SongBookRepository(DapperContext context)
         {
             _context = context;
+        }
+
+        public async Task<string> GetHomePageSongs()
+        {
+            var query = @"
+            WITH filtered_songs AS (
+                SELECT *
+                FROM songs
+                Order by updated_at DESC
+                LIMIT 5
+            ),
+            paged_songs AS (
+                SELECT json_build_object(
+                    'songId', s.song_id,
+                    'title', s.title,
+                    'englishTitle', s.english_title,
+                    'category', s.category,
+                    'stanzaNos', s.stanza_nos,
+                    'stanzas', COALESCE(st.stanzas, '[]'::json)
+                ) AS song_data
+                FROM filtered_songs s
+                LEFT JOIN LATERAL (
+                    SELECT json_agg(stanza ORDER BY stanza_order) AS stanzas
+                    FROM stanzas
+                    WHERE song_id = s.song_id
+                ) st ON true
+            )
+            SELECT json_build_object(
+                'songs', (SELECT json_agg(song_data) FROM paged_songs)
+            );";
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.ExecuteScalarAsync<string>(query);
         }
 
         public async Task<string> GetSongs(int? page = 1, string? search = null)

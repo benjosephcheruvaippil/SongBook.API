@@ -69,6 +69,15 @@ namespace SongBook.API.Controllers
             return Unauthorized();
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("homPageSongs")]
+        public async Task<IActionResult> GetHomPageSongs()
+        {
+            var json = await _repository.GetHomePageSongs();
+            return Ok(JsonSerializer.Deserialize<object>(json));
+        }
+
         [Authorize]
         [HttpGet]
         [Route("songs")]
