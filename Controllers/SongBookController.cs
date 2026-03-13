@@ -51,7 +51,7 @@ namespace SongBook.API.Controllers
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = subject,
-                    Expires = DateTime.UtcNow.AddMinutes(10),
+                    Expires = DateTime.UtcNow.AddMinutes(2),
                     Issuer = issuer,
                     Audience = audience,
                     SigningCredentials = signingCredentials
