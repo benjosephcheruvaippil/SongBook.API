@@ -48,42 +48,96 @@ namespace SongBook.API.Repositories
             return await connection.ExecuteScalarAsync<string>(query);
         }
 
+        //public async Task<string> GetSongs(int? page = 1, string? search = null)
+        //{
+        //    const int pageSize = 5;
+        //    var offset = (page - 1) * pageSize;
+
+        //    var query = @"
+        //    WITH filtered_songs AS (
+        //        SELECT *
+        //        FROM songs
+        //        WHERE (@search IS NULL OR english_title ILIKE '%' || @search || '%')
+        //    ),
+        //    total_count AS (
+        //        SELECT COUNT(*) AS total FROM filtered_songs
+        //    ),
+        //    paged_songs AS (
+        //        SELECT json_build_object(
+        //            'songId', s.song_id,
+        //            'title', s.title,
+        //            'englishTitle', s.english_title,
+        //            'category', s.category,
+        //            'stanzaNos', s.stanza_nos,
+        //            'stanzas', COALESCE(st.stanzas, '[]'::json)
+        //        ) AS song_data
+        //        FROM filtered_songs s
+        //        LEFT JOIN LATERAL (
+        //            SELECT json_agg(stanza ORDER BY stanza_order) AS stanzas
+        //            FROM stanzas
+        //            WHERE song_id = s.song_id
+        //        ) st ON true
+        //        ORDER BY s.song_id
+        //        LIMIT @pageSize OFFSET @offset
+        //    )
+        //    SELECT json_build_object(
+        //        'totalPages', CEIL((SELECT total FROM total_count)::decimal / @pageSize),
+        //        'songs', (SELECT json_agg(song_data) FROM paged_songs)
+        //    );";
+
+        //    using var connection = _context.CreateConnection();
+
+        //    return await connection.ExecuteScalarAsync<string>(query, new
+        //    {
+        //        search,
+        //        pageSize,
+        //        offset
+        //    });
+        //}
+
         public async Task<string> GetSongs(int? page = 1, string? search = null)
         {
             const int pageSize = 5;
             var offset = (page - 1) * pageSize;
 
             var query = @"
-            WITH filtered_songs AS (
-                SELECT *
-                FROM songs
-                WHERE (@search IS NULL OR english_title ILIKE '%' || @search || '%')
-            ),
-            total_count AS (
-                SELECT COUNT(*) AS total FROM filtered_songs
-            ),
-            paged_songs AS (
-                SELECT json_build_object(
+    WITH filtered_songs AS (
+        SELECT *
+        FROM songs
+        WHERE (@search IS NULL OR english_title ILIKE '%' || @search || '%')
+    ),
+    total_count AS (
+        SELECT COUNT(*) AS total FROM filtered_songs
+    ),
+    paginated_songs AS (
+        SELECT *
+        FROM filtered_songs
+        ORDER BY song_id
+        LIMIT @pageSize OFFSET @offset
+    )
+    SELECT json_build_object(
+        'totalPages', CEIL((SELECT total FROM total_count)::decimal / @pageSize),
+        'songs', (
+            SELECT json_agg(
+                json_build_object(
                     'songId', s.song_id,
                     'title', s.title,
                     'englishTitle', s.english_title,
                     'category', s.category,
                     'stanzaNos', s.stanza_nos,
-                    'stanzas', COALESCE(st.stanzas, '[]'::json)
-                ) AS song_data
-                FROM filtered_songs s
-                LEFT JOIN LATERAL (
-                    SELECT json_agg(stanza ORDER BY stanza_order) AS stanzas
-                    FROM stanzas
-                    WHERE song_id = s.song_id
-                ) st ON true
-                ORDER BY s.song_id
-                LIMIT @pageSize OFFSET @offset
+                    'stanzas', COALESCE(
+                        (
+                            SELECT json_agg(stanza ORDER BY stanza_order)
+                            FROM stanzas
+                            WHERE song_id = s.song_id
+                        ),
+                        '[]'::json
+                    )
+                )
             )
-            SELECT json_build_object(
-                'totalPages', CEIL((SELECT total FROM total_count)::decimal / @pageSize),
-                'songs', (SELECT json_agg(song_data) FROM paged_songs)
-            );";
+            FROM paginated_songs s
+        )
+    );";
 
             using var connection = _context.CreateConnection();
 

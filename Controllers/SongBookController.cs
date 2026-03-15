@@ -69,7 +69,7 @@ namespace SongBook.API.Controllers
             return Unauthorized();
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet]
         [Route("homPageSongs")]
         public async Task<IActionResult> GetHomPageSongs()
